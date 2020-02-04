@@ -13,6 +13,9 @@
         <selenium-java-version>3.141.59</selenium-java-version>
         <cucumber-java-version>4.4.0</cucumber-java-version>
         <maven-surefire-plugin-version>3.0.0-M4</maven-surefire-plugin-version>
+        <rerunFailingTestsCount>0</rerunFailingTestsCount>
+        <forkCount>1</forkCount>
+        <parallelScheme>FEATURE</parallelScheme>
     </properties>
 
     <build>
@@ -27,19 +30,44 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>com.github.temyers</groupId>
+                <artifactId>cucumber-jvm-parallel-plugin</artifactId>
+                <version>5.0.0</version>
+                <executions>
+                    <execution>
+                        <id>generateRunners</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>generateRunners</goal>
+                        </goals>
+                        <configuration>
+                            <glue>
+                                <package>definitions</package>
+                                <package>support</package>
+                            </glue>
+                            <strict>false</strict>
+                            <featuresDirectory>src/test/resources/features</featuresDirectory>
+                            <monochrome>true</monochrome>
+                            <parallelScheme>${parallelScheme}</parallelScheme>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin-version}</version>
                 <configuration>
+                    <forkCount>${forkCount}</forkCount>
+                    <reuseForks>true</reuseForks>
                     <testFailureIgnore>true</testFailureIgnore>
                     <useUnlimitedThreads>true</useUnlimitedThreads>
-                    <reuseForks>true</reuseForks>
-                    <forkCount>1</forkCount>
+                    <rerunFailingTestsCount>${rerunFailingTestsCount}</rerunFailingTestsCount>
                     <systemPropertyVariables>
                         <threadNumber>ThreadNumber_${surefire.threadNumber}</threadNumber>
                     </systemPropertyVariables>
                     <includes>
-                        <include>**/*.class</include>
+                        <include>**/*IT.class</include>
                     </includes>
                 </configuration>
                 <dependencies>
