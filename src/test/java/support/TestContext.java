@@ -1,6 +1,7 @@
 // Created by Viacheslav (Slava) Skryabin 04/01/2018
 package support;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -39,11 +40,7 @@ public class TestContext {
         String osName = System.getProperty("os.name");
         switch (browser) {
             case "chrome":
-                String chromeDriverName = "chromedriver.exe";
-                if (osName != null && (osName.contains("Mac") || osName.contains("Linux"))) {
-                    chromeDriverName = "chromedriver";
-                }
-                System.setProperty("webdriver.chrome.driver", getDriversDirPath() + chromeDriverName);
+                WebDriverManager.chromedriver().setup();
                 Map<String, Object> chromePreferences = new HashMap<>();
                 chromePreferences.put("profile.default_content_settings.geolocation", 2);
                 chromePreferences.put("download.prompt_for_download", false);
@@ -63,11 +60,7 @@ public class TestContext {
                 driver = new ChromeDriver(chromeOptions);
                 break;
             case "firefox":
-                String geckoDriverName = "geckodriver.exe";
-                if (osName != null && (osName.contains("Mac") || osName.contains("Linux"))) {
-                    geckoDriverName = "geckodriver";
-                }
-                System.setProperty("webdriver.gecko.driver", getDriversDirPath() + geckoDriverName);
+                WebDriverManager.firefoxdriver().setup();
                 System.setProperty(FirefoxDriver.SystemProperty.DRIVER_USE_MARIONETTE,"true");
                 System.setProperty(FirefoxDriver.SystemProperty.BROWSER_LOGFILE,"/dev/null");
                 FirefoxProfile firefoxProfile = new FirefoxProfile();
@@ -90,11 +83,11 @@ public class TestContext {
                 driver = new FirefoxDriver(firefoxOptions);
                 break;
             case "edge":
-                System.setProperty("webdriver.edge.driver", getDriversDirPath() + "MicrosoftWebDriver.exe");
+                WebDriverManager.edgedriver().setup();
                 driver = new EdgeDriver();
                 break;
             case "ie":
-                System.setProperty("webdriver.ie.driver", getDriversDirPath() + "IEDriverServer.exe");
+                WebDriverManager.iedriver().setup();
                 DesiredCapabilities ieCapabilities = DesiredCapabilities.internetExplorer();
                 ieCapabilities.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS, true);
                 ieCapabilities.setCapability("requireWindowFocus", true);
