@@ -131,7 +131,7 @@ public class PredefinedStepDefs {
     @Then("^element with xpath \"([^\"]*)\" should contain text \"([^\"]*)\"$")
     public void elementWithXpathShouldContainText(String xpath, String text) {
         String actualText = getDriver().findElement(By.xpath(xpath)).getText();
-        assertThat(actualText).contains(text);
+        assertThat(actualText).containsIgnoringCase(text);
     }
 
     @Then("^element with xpath \"([^\"]*)\" should not contain text \"([^\"]*)\"$")
