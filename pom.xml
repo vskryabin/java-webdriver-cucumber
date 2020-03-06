@@ -168,17 +168,12 @@
     <repositories>
         <repository>
             <id>maven</id>
-            <name>maven default</name>
+            <name>maven</name>
             <url>http://repo.maven.apache.org/maven2/</url>
         </repository>
         <repository>
-            <id>maven2</id>
-            <name>maven default</name>
-            <url>http://repo1.maven.org/maven2/</url>
-        </repository>
-        <repository>
             <id>selenium</id>
-            <name>selenium repo</name>
+            <name>selenium</name>
             <url>http://repo1.maven.org/maven2/org/seleniumhq/selenium/</url>
         </repository>
     </repositories>
