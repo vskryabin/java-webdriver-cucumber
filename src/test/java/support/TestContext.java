@@ -39,6 +39,8 @@ public class TestContext {
     }
 
     public static void initialize(String browser, String testEnv, boolean isHeadless) {
+        Dimension size = new Dimension(1920, 1080);
+        Point position = new Point(0, 0);
         if (testEnv.equals("local")) {
             switch (browser) {
                 case "chrome":
@@ -49,14 +51,14 @@ public class TestContext {
                     chromePreferences.put("download.directory_upgrade", true);
                     chromePreferences.put("credentials_enable_service", false);
                     chromePreferences.put("password_manager_enabled", false);
-                    chromePreferences.put("safebrowsing.enabled", "true");
+                    chromePreferences.put("safebrowsing.enabled", true);
                     ChromeOptions chromeOptions = new ChromeOptions();
                     chromeOptions.addArguments("--start-maximized");
                     chromeOptions.setExperimentalOption("prefs", chromePreferences);
                     System.setProperty("webdriver.chrome.silentOutput", "true");
                     if (isHeadless) {
                         chromeOptions.setHeadless(true);
-                        chromeOptions.addArguments("--window-size=1920,1080");
+                        chromeOptions.addArguments("--window-size=" + size.getWidth() + "," + size.getWidth());
                         chromeOptions.addArguments("--disable-gpu");
                     }
                     driver = new ChromeDriver(chromeOptions);
@@ -73,8 +75,8 @@ public class TestContext {
                     break;
                 case "safari":
                     driver = new SafariDriver();
-                    driver.manage().window().setPosition(new Point(0, 0));
-                    driver.manage().window().setSize(new Dimension(1920, 1080));
+                    driver.manage().window().setPosition(position);
+                    driver.manage().window().setSize(size);
                     break;
                 case "edge":
                     WebDriverManager.edgedriver().setup();
