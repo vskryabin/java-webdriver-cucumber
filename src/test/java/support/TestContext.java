@@ -2,6 +2,9 @@
 package support;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Platform;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -10,10 +13,9 @@ import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.remote.BrowserType;
-import org.openqa.selenium.Platform;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.safari.SafariDriver;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,67 +31,74 @@ public class TestContext {
     }
 
     public static void initialize() {
-        initialize("chrome", false);
+        initialize("chrome", "local", false);
     }
 
     public static void teardown() {
         driver.quit();
     }
 
-    public static void initialize(String browser, boolean isHeadless) {
-        switch (browser) {
-            case "chrome":
-                WebDriverManager.chromedriver().setup();
-                Map<String, Object> chromePreferences = new HashMap<>();
-                chromePreferences.put("profile.default_content_settings.geolocation", 2);
-                chromePreferences.put("download.prompt_for_download", false);
-                chromePreferences.put("download.directory_upgrade", true);
-                chromePreferences.put("credentials_enable_service", false);
-                chromePreferences.put("password_manager_enabled", false);
-                chromePreferences.put("safebrowsing.enabled", "true");
-                ChromeOptions chromeOptions = new ChromeOptions();
-                chromeOptions.addArguments("--start-maximized");
-                chromeOptions.setExperimentalOption("prefs", chromePreferences);
-                System.setProperty("webdriver.chrome.silentOutput", "true");
-                if (isHeadless) {
-                    chromeOptions.setHeadless(true);
-                    chromeOptions.addArguments("--window-size=1920,1080");
-                    chromeOptions.addArguments("--disable-gpu");
-                }
-                driver = new ChromeDriver(chromeOptions);
-                break;
-            case "firefox":
-                WebDriverManager.firefoxdriver().setup();
-                FirefoxOptions firefoxOptions = new FirefoxOptions();
-                if (isHeadless) {
-                    FirefoxBinary firefoxBinary = new FirefoxBinary();
-                    firefoxBinary.addCommandLineOptions("--headless");
-                    firefoxOptions.setBinary(firefoxBinary);
-                }
-                driver = new FirefoxDriver(firefoxOptions);
-                break;
-            case "edge":
-                WebDriverManager.edgedriver().setup();
-                driver = new EdgeDriver();
-                break;
-            case "ie":
-                WebDriverManager.iedriver().setup();
-                driver = new InternetExplorerDriver();
-                break;
-            case "grid":
-                DesiredCapabilities capabilities = new DesiredCapabilities();
-                capabilities.setBrowserName(BrowserType.CHROME);
-                capabilities.setPlatform(Platform.ANY);
-                URL hubUrl = null;
-                try {
-                    hubUrl = new URL("http://localhost:4444/wd/hub");
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
+    public static void initialize(String browser, String testEnv, boolean isHeadless) {
+        if (testEnv.equals("local")) {
+            switch (browser) {
+                case "chrome":
+                    WebDriverManager.chromedriver().setup();
+                    Map<String, Object> chromePreferences = new HashMap<>();
+                    chromePreferences.put("profile.default_content_settings.geolocation", 2);
+                    chromePreferences.put("download.prompt_for_download", false);
+                    chromePreferences.put("download.directory_upgrade", true);
+                    chromePreferences.put("credentials_enable_service", false);
+                    chromePreferences.put("password_manager_enabled", false);
+                    chromePreferences.put("safebrowsing.enabled", "true");
+                    ChromeOptions chromeOptions = new ChromeOptions();
+                    chromeOptions.addArguments("--start-maximized");
+                    chromeOptions.setExperimentalOption("prefs", chromePreferences);
+                    System.setProperty("webdriver.chrome.silentOutput", "true");
+                    if (isHeadless) {
+                        chromeOptions.setHeadless(true);
+                        chromeOptions.addArguments("--window-size=1920,1080");
+                        chromeOptions.addArguments("--disable-gpu");
+                    }
+                    driver = new ChromeDriver(chromeOptions);
+                    break;
+                case "firefox":
+                    WebDriverManager.firefoxdriver().setup();
+                    FirefoxOptions firefoxOptions = new FirefoxOptions();
+                    if (isHeadless) {
+                        FirefoxBinary firefoxBinary = new FirefoxBinary();
+                        firefoxBinary.addCommandLineOptions("--headless");
+                        firefoxOptions.setBinary(firefoxBinary);
+                    }
+                    driver = new FirefoxDriver(firefoxOptions);
+                    break;
+                case "safari":
+                    driver = new SafariDriver();
+                    driver.manage().window().setPosition(new Point(0, 0));
+                    driver.manage().window().setSize(new Dimension(1920, 1080));
+                    break;
+                case "edge":
+                    WebDriverManager.edgedriver().setup();
+                    driver = new EdgeDriver();
+                    break;
+                case "ie":
+                    WebDriverManager.iedriver().setup();
+                    driver = new InternetExplorerDriver();
+                    break;
+                default:
+                    throw new RuntimeException("Driver is not implemented for: " + browser);
+            }
+        } else if (testEnv.equals("grid")){
+            DesiredCapabilities capabilities = new DesiredCapabilities();
+            capabilities.setBrowserName(browser);
+            capabilities.setPlatform(Platform.ANY);
+            try {
+                URL hubUrl = new URL("http://localhost:4444/wd/hub");
                 driver = new RemoteWebDriver(hubUrl, capabilities);
-                break;
-            default:
-                throw new RuntimeException("Driver is not implemented for: " + browser);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        } else {
+            throw new RuntimeException("Unsupported test environment: " + testEnv);
         }
     }
 }
