@@ -15,11 +15,12 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.LocalFileDetector;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
-
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,8 +49,13 @@ public class TestContext {
                     WebDriverManager.chromedriver().setup();
                     Map<String, Object> chromePreferences = new HashMap<>();
                     chromePreferences.put("profile.default_content_settings.geolocation", 2);
+                    chromePreferences.put("profile.default_content_settings.popups", 0);
                     chromePreferences.put("download.prompt_for_download", false);
                     chromePreferences.put("download.directory_upgrade", true);
+                    chromePreferences.put("download.default_directory", System.getProperty("user.dir") + "/src/test/resources/downloads");
+                    chromePreferences.put("safebrowsing.enabled", false);
+                    chromePreferences.put("plugins.always_open_pdf_externally", true);
+                    chromePreferences.put("plugins.plugins_disabled", new ArrayList<String>(){{ add("Chrome PDF Viewer"); }});
                     chromePreferences.put("credentials_enable_service", false);
                     chromePreferences.put("password_manager_enabled", false);
                     ChromeOptions chromeOptions = new ChromeOptions();
@@ -96,6 +102,7 @@ public class TestContext {
             try {
                 URL hubUrl = new URL("http://localhost:4444/wd/hub");
                 driver = new RemoteWebDriver(hubUrl, capabilities);
+                ((RemoteWebDriver) driver).setFileDetector(new LocalFileDetector());
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e.getMessage());
             }
