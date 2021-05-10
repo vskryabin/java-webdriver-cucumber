@@ -2,6 +2,7 @@ package Pages;
 
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -10,7 +11,9 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+
 import static support.TestContext.getDriver;
+
 
 public class Page {
     private String url;
@@ -51,9 +54,15 @@ public class Page {
         new WebDriverWait(getDriver(), 10).until(ExpectedConditions.elementToBeClickable(element));
     }
 
+
+
     public void click(WebElement element) {
         waitForClickable(element);
-        element.click();
+        try {
+            element.click();
+        } catch (WebDriverException e) {
+            clickWithJS(element);
+        }
     }
 
 
@@ -67,5 +76,19 @@ public class Page {
         Select select = new Select(element);
         select.selectByVisibleText(text);
     }
+
+    public void selectDropdownByValue(String text, WebElement element) throws InterruptedException {
+        waitForClickable(element);
+        Select select = new Select(element);
+        select.selectByValue(text);
+    }
+
+
+    public void clickWithJS(WebElement element) {
+        JavascriptExecutor executor = (JavascriptExecutor)getDriver();
+        executor.executeScript("arguments[0].click();", element);
+    }
+
+
 
 }
