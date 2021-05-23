@@ -1,4 +1,3 @@
-// Created by Viacheslav (Slava) Skryabin 04/01/2011
 package support;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
